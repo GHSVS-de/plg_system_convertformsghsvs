@@ -1,0 +1,84 @@
+{
+	"name": "plg_system_convertformsghsvs",
+	"nameReal": "plg_system_convertformsghsvs",
+	"filename": "convertformsghsvs",
+	"version": "2022.06.11",
+	"versionCompare": "2022.04.25",
+	"update": {
+		"type": "plugin",
+		"folder": "system",
+		"client": "site",
+		"tag": "stable",
+		"targetplatform": [
+			"3.*",
+			"4.*"
+		],
+		"namespace": "Joomla\\Plugin\\System\\ConvertFormsGhsvs"
+	},
+	"releaseTxt": {
+		"title": "Joomla system plugin ConvertFormsGhsvs",
+		"requires": [
+			"https://www.tassos.gr/joomla-extensions/convert-forms"
+		],
+		"uses": [],
+		"language": [
+			"de-DE",
+			"en-GB"
+		]
+	},
+	"changelog": {
+		"projecturl": "https://github.com/GHSVS-de/plg_system_convertformsghsvs",
+		"infosDE": "",
+		"infosEN": "https://github.com/GHSVS-de/plg_system_convertformsghsvs#readme",
+		"docsDE": "",
+		"docsEN": "https://github.com/GHSVS-de/plg_system_convertformsghsvs#readme",
+		"lastTests": [
+			"PHP 8.0",
+			"Joomla 3.10",
+			"Joomla 4.1"
+		]
+	},
+	"minimumPhp": "7.4.0",
+	"maximumPhp": "8.9999.9999",
+	"minimumJoomla": "3.10.0",
+	"maximumJoomla": "4.9999.9999",
+	"allowDowngrades": "1",
+	"creationDate": "2021-12-04",
+	"licenseLong": "GNU General Public License version 3 or later; see LICENSE.txt.",
+	"copyright": "(C) 2021, G@HService Berlin Neukölln, Volkmar Volli Schlothauer.",
+	"author": {
+		"name": "G@HService Berlin Neukölln, Volkmar Volli Schlothauer",
+		"url": "https://ghsvs.de"
+	},
+	"contributors": [
+		{
+			"name": "G@HService Berlin Neukölln, Volkmar Volli Schlothauer",
+			"url": "https://ghsvs.de"
+		}
+	],
+	"bugs": "https://github.com/GHSVS-de/plg_system_convertformsghsvs/issues",
+	"homepage": "https://github.com/GHSVS-de/plg_system_convertformsghsvs#readme",
+	"keywords": [
+		"joomla",
+		"system plugin",
+		"ConvertForms events"
+	],
+	"private": false,
+	"description": "Joomla system plugin. Performs additional actions when users are edited or saved.",
+	"license": "GPL-3.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/GHSVS-de/plg_system_convertformsghsvs.git"
+	},
+	"scripts": {
+		"build": "node build.js",
+		"updateCheck": "npm outdated",
+		"update": "npm update --save-dev"
+	},
+	"devDependencies": {
+		"fs-extra": "^10.1.0",
+		"picocolors": "^1.0.0"
+	},
+	"peerDependencies": {},
+	"browserslist": []
+}
