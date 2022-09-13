@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="{{type}}" group="{{folder}}" method="upgrade">
+	<name>{{nameUpper}}</name>
+	<author>{{authorName}}</author>
+	<creationDate>{{creationDate}}</creationDate>
+	<copyright>{{copyright}}</copyright>
+	<license>{{licenseLong}}</license>
+	<authorUrl>{{authorUrl}}</authorUrl>
+	<version>{{version}}</version>
+ 	<description>{{nameUpper}}_XML_DESCRIPTION</description>
+
+	<updateservers>
+		<server type="extension" priority="1" name="{{nameUpper}}">{{xmlserver}}/{{name}}-update.xml</server>
+	</updateservers>
+
+	<changelogurl>{{xmlserver}}/{{name}}-changelog.xml</changelogurl>
+
+	<infourl>{{infourl}}?file={{name}}</infourl>
+
+	<scriptfile>installerScript.php</scriptfile>
+	<minimumPhp>{{minimumPhp}}</minimumPhp>
+	<maximumPhp>{{maximumPhp}}</maximumPhp>
+	<minimumJoomla>{{minimumJoomla}}</minimumJoomla>
+	<maximumJoomla>{{maximumJoomla}}</maximumJoomla>
+	<allowDowngrades>{{allowDowngrades}}</allowDowngrades>
+
+	<files>
+		<filename plugin="{{filename}}">{{filename}}.php</filename>
+		<filename>installerScript.php</filename>
+		<filename>LICENSE.txt</filename>
+		<folder>language</folder>
+		<!-- <folder>src</folder> -->
+	</files>
+	{{namespace}}
+	<config addfieldpath="plugins/system/{{filename}}/src/Field/j3"{{addfieldprefix}}>
+		<fields name="params">
+
+			<fieldset name="basic">
+				<field type="hidden" default="1" name="{{filename}}plugin"/>
+			</fieldset>
+
+		</fields>
+	</config>
+
+</extension>

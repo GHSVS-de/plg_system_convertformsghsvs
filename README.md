@@ -2,9 +2,7 @@
 
 # This plugin is a non-functioning draft and will break your Joomla if you try to install it.
 
-# This plugin is a non-functioning draft and will break your Joomla if you try to install it.
-
-Joomla system plugin. Performs additional actions when users are submitting a ConvertForms form.
+Joomla system plugin. Performs additional actions when extension ConvertForms is used.
 
 ----------------------
 
@@ -19,13 +17,6 @@ Joomla system plugin. Performs additional actions when users are submitting a Co
 - `npm run updateCheck` or (faster) `npm outdated`
 - `npm run update` (if needed) or (faster) `npm update --save-dev`
 - `npm install` (if needed)
-
-## PHP Codestyle
-If you think it's worth it.
-- `cd /mnt/z/git-kram/php-cs-fixer-ghsvs`
-- `npm run plg_system_convertformsghsvsDry` (= dry test run).
-- `npm run plg_system_convertformsghsvs` (= cleans code).
-- `cd /mnt/z/git-kram/plg_system_convertformsghsvs` (back to this repo).
 
 ## Build installable ZIP package
 - `node build.js`

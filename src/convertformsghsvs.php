@@ -8,6 +8,7 @@ use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Table\Table;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Form\Form;
 
 class PlgSystemConvertFormsGhsvs extends CMSPlugin
 {
@@ -329,5 +330,56 @@ Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgeh
 
 
 	}
+
+     /**
+     *  Prepare form.
+     *
+     *  @param   JForm  $form  The form to be altered.
+     *  @param   mixed  $data  The associated data for the form.
+     *
+     *  @return  boolean
+     */
+    public function onContentPrepareForm(Form $form, $data)
+    {
+        if ($this->app->isClient('administrator')) {
+        	return;
+        }
+
+echo ' 4654sd48sa7d98sD81s8d71dsa <pre>' . print_r($form->getName(), true) . '</pre>';exit;
+
+        // Check we have a valid form context
+        $validForms = array(
+            "com_convertforms.campaign",
+            "com_convertforms.form"
+        );
+
+        if (!in_array($form->getName(), $validForms))
+        {
+            return true;
+        }
+
+        // Load ConvertForms plugins
+        JPluginHelper::importPlugin('convertforms');
+        JPluginHelper::importPlugin('convertformstools');
+
+        // Campaign Forms
+        if ($form->getName() == 'com_convertforms.campaign')
+        {
+            if (!isset($data->service) || !$service = $data->service)
+            {
+                return true;
+            }
+
+            $result = \JFactory::getApplication()->triggerEvent('onConvertFormsCampaignPrepareForm', [$form, $data, $service]);
+        }
+
+        // Form Editing Page
+        if ($form->getName() == 'com_convertforms.form')
+        {
+            $result = \JFactory::getApplication()->triggerEvent('onConvertFormsFormPrepareForm', [$form, $data]);
+        }
+
+        return true;
+    }
 
 }

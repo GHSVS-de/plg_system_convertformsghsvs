@@ -3,7 +3,7 @@
 	"nameReal": "plg_system_convertformsghsvs",
 	"filename": "convertformsghsvs",
 	"version": "2022.06.11",
-	"versionCompare": "2022.04.25",
+	"versionCompare": "2022.06.11",
 	"update": {
 		"type": "plugin",
 		"folder": "system",
@@ -43,9 +43,9 @@
 	"minimumJoomla": "3.10.0",
 	"maximumJoomla": "4.9999.9999",
 	"allowDowngrades": "1",
-	"creationDate": "2021-12-04",
+	"creationDate": "2022-06-11",
 	"licenseLong": "GNU General Public License version 3 or later; see LICENSE.txt.",
-	"copyright": "(C) 2021, G@HService Berlin Neukölln, Volkmar Volli Schlothauer.",
+	"copyright": "(C) 2022, G@HService Berlin Neukölln, Volkmar Volli Schlothauer.",
 	"author": {
 		"name": "G@HService Berlin Neukölln, Volkmar Volli Schlothauer",
 		"url": "https://ghsvs.de"
@@ -64,7 +64,7 @@
 		"ConvertForms events"
 	],
 	"private": false,
-	"description": "Joomla system plugin. Performs additional actions when users are edited or saved.",
+	"description": "Joomla system plugin. Performs additional actions when extension ConvertForms is used.",
 	"license": "GPL-3.0",
 	"repository": {
 		"type": "git",
@@ -75,10 +75,7 @@
 		"updateCheck": "npm outdated",
 		"update": "npm update --save-dev"
 	},
-	"devDependencies": {
-		"fs-extra": "^10.1.0",
-		"picocolors": "^1.0.0"
-	},
+	"devDependencies": {},
 	"peerDependencies": {},
 	"browserslist": []
 }
