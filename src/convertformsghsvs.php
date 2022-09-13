@@ -1,6 +1,25 @@
 <?php
 defined('_JEXEC') or die;
 
+if (version_compare(JVERSION, '4', 'lt'))
+{
+	JLoader::registerNamespace(
+		'Joomla\Plugin\System\ConvertFormsGhsvs',
+		__DIR__ . '/src',
+		false,
+		false,
+		'psr4'
+	);
+}
+
+/*
+Siehe auch plugins/convertforms.
+
+Siehe auch plugins/convertformstools.
+
+Um die events zu finden, suche nach "onConvertForms" in den Dateien der gesamten seite.
+*/
+
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
@@ -9,6 +28,7 @@ use Joomla\CMS\Table\Table;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Form\Form;
+use Joomla\Plugin\System\ConvertFormsGhsvs\Helper\ConvertFormsGhsvsHelper;
 
 class PlgSystemConvertFormsGhsvs extends CMSPlugin
 {
@@ -326,60 +346,79 @@ Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgeh
 			throw new \Exception($mailer->error);
 		}
 		file_put_contents(JPATH_SITE . '/cli/onConvertFormsSubmissionAfterSave.txt',
-	print_r($collect, true));
+			print_r($collect, true));
 
 
 	}
 
-     /**
-     *  Prepare form.
-     *
-     *  @param   JForm  $form  The form to be altered.
-     *  @param   mixed  $data  The associated data for the form.
-     *
-     *  @return  boolean
-     */
-    public function onContentPrepareForm(Form $form, $data)
-    {
-        if ($this->app->isClient('administrator')) {
-        	return;
-        }
+	/** NUTZLOS IM FE!!!!!!!!
+	*  Prepare form.
+	*
+	*  @param   JForm  $form  The form to be altered.
+	*  @param   mixed  $data  The associated data for the form.
+	*
+	*  @return  boolean
+	*/
+	public function onContentPrepareForm(Form $form, $data)
+	{
+	}
+	public function onContentPrepareData($context, $data)
+	{
+	}
 
-echo ' 4654sd48sa7d98sD81s8d71dsa <pre>' . print_r($form->getName(), true) . '</pre>';exit;
+	public function onBeforeCompileHead()
+	{
+		ConvertFormsGhsvsHelper::loadCss($this->app, $this->db);
+	}
 
-        // Check we have a valid form context
-        $validForms = array(
-            "com_convertforms.campaign",
-            "com_convertforms.form"
-        );
+	/** NUTZLOS IM FE!!!!!!!!
+	*  Add plugin fields to the form
+	*
+	*  @param   JForm   $form
+	*  @param   object  $data
+	*
+	*  @return  boolean
+	*/
+	public function onConvertFormsFormPrepareForm($form, $data)
+	{
+		return true;
+	}
 
-        if (!in_array($form->getName(), $validForms))
-        {
-            return true;
-        }
+	/*
+	!!!!Das findet erst nach dem Rendern Joomlas statt. HTMLHelper nutzlos, also.
+	*/
+	public function onConvertFormsFormBeforeRender($data)
+	{
 
-        // Load ConvertForms plugins
-        JPluginHelper::importPlugin('convertforms');
-        JPluginHelper::importPlugin('convertformstools');
+		if ($this->app->isClient('administrator') || empty($data)) {
+			return;
+		}
 
-        // Campaign Forms
-        if ($form->getName() == 'com_convertforms.campaign')
-        {
-            if (!isset($data->service) || !$service = $data->service)
-            {
-                return true;
-            }
+		// CSS files to load? https://github.com/GHSVS-de/plg_system_convertformsghsvs/discussions/1
+/* 		if (!empty($data['params']['classsuffix'])
+			&& ($classsuffix = trim($data['params']['classsuffix']))
+			&& strpos($classsuffix, '_css') !== false)
+		{
+			foreach (array_map('trim', explode(' ', $classsuffix)) as $file) {
+				if (substr($file, -4) === '_css') {
+					$file = str_replace('_', '.', $file);
+					echo $file;
+					$bullshit = HTMLHelper::_('stylesheet', $file,
+						['relative' => true, 'version' => 'auto', 'pathOnly' => false]);
+					echo $bullshit;
+				}
+			}
+		} */
+//
+		//$form->loadFile(__DIR__ . '/form/form.xml', false);
+		return true;
+	}
 
-            $result = \JFactory::getApplication()->triggerEvent('onConvertFormsCampaignPrepareForm', [$form, $data, $service]);
-        }
+	public function onContentBeforeDisplay($context, &$row, &$params, $page = 0)
+	{
+		#echo ' onContentPrepare sssssssss <pre>' . print_r($context, true) . '</pre>';exit;
+			//$this->renderAllVideos($row, $params, $page = 0);
+	}
 
-        // Form Editing Page
-        if ($form->getName() == 'com_convertforms.form')
-        {
-            $result = \JFactory::getApplication()->triggerEvent('onConvertFormsFormPrepareForm', [$form, $data]);
-        }
-
-        return true;
-    }
 
 }

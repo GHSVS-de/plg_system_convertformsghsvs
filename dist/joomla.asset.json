@@ -1,0 +1,22 @@
+{
+  "$schema": "https://developer.joomla.org/schemas/json-schema/web_assets.json",
+  "name": "plg_system_convertformsghsvs",
+  "version": "2022.06.12",
+  "description": "Joomla system plugin. Performs additional actions when extension ConvertForms is used.",
+  "license": "GNU General Public License version 3 or later; see LICENSE.txt.",
+  "assets": [
+    {
+      "name": "plg_system_convertformsghsvs.core",
+      "type": "script",
+      "uri": "plg_system_convertformsghsvs/splide/splide.js",
+			"version": ""
+    },
+		{
+			"name": "plg_system_convertformsghsvs.override.template",
+			"version": "2022.06.12",
+			"type": "style",
+			"uri": "plg_system_convertformsghsvs.css",
+			"weight": 200
+		}
+  ]
+}

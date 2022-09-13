@@ -27,9 +27,11 @@
 	<files>
 		<filename plugin="{{filename}}">{{filename}}.php</filename>
 		<filename>installerScript.php</filename>
+		<filename>joomla.asset.json</filename>
 		<filename>LICENSE.txt</filename>
+		<filename>package.json</filename>
 		<folder>language</folder>
-		<!-- <folder>src</folder> -->
+		<folder>src</folder>
 	</files>
 	{{namespace}}
 	<config addfieldpath="plugins/system/{{filename}}/src/Field/j3"{{addfieldprefix}}>

@@ -47,9 +47,19 @@ const Manifest = `${__dirname}/package/${manifestFileName}`;
 	to = './package'
 	await helper.copy(from, to)
 
+	from = `./package.json`;
+	to =  `./package/package.json`;
+	await helper.copy(from, to)
+
 	await helper.mkdir('./dist');
 
 	const zipFilename = `${name}-${version}.zip`;
+
+	from = path.resolve('package', 'joomla.asset.json');
+	replaceXmlOptions.xmlFile = from;
+	await replaceXml.main(replaceXmlOptions);
+
+	await helper.copy(from, `./dist/joomla.asset.json`)
 
 	replaceXmlOptions.xmlFile = Manifest
 	replaceXmlOptions.zipFilename = zipFilename
@@ -83,7 +93,7 @@ const Manifest = `${__dirname}/package/${manifestFileName}`;
 	}
 
 	cleanOuts = [
-		`./package`,
+		//`./package`,
 	];
 	await helper.cleanOut(cleanOuts).then(
 		answer => console.log(pc.cyan(pc.bold((pc.bgRed(
