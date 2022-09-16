@@ -2,8 +2,8 @@
 	"name": "plg_system_convertformsghsvs",
 	"nameReal": "plg_system_convertformsghsvs",
 	"filename": "convertformsghsvs",
-	"version": "2022.06.12",
-	"versionCompare": "2022.06.11",
+	"version": "2022.09.15",
+	"versionCompare": "2022.06.12",
 	"update": {
 		"type": "plugin",
 		"folder": "system",
