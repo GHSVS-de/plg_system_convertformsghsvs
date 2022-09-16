@@ -5,12 +5,6 @@
   "description": "{{description}}",
   "license": "{{licenseLong}}",
   "assets": [
-    {
-      "name": "{{name}}.core",
-      "type": "script",
-      "uri": "{{name}}/splide/splide.js",
-			"version": "{{versionSub}}"
-    },
 		{
 			"name": "{{name}}.override.template",
 			"version": "{{version}}",

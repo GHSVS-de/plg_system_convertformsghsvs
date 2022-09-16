@@ -41,6 +41,9 @@
 				<field type="hidden" default="1" name="{{filename}}plugin"/>
 			</fieldset>
 
+			<fieldset name="settings" label="Settings">
+				<field type="hidden" default="0" name="sendCopy"/>
+			</fieldset>
 		</fields>
 	</config>
 

@@ -1,8 +1,16 @@
 # plg_system_convertformsghsvs
 
-# This plugin is a non-functioning draft and will break your Joomla if you try to install it.
+Joomla-System-Plugin. Führt zusätzliche Aktionen durch, wenn die Erweiterung ConvertForms verwendet wird.
 
 Joomla system plugin. Performs additional actions when extension ConvertForms is used.
+
+## Vorsicht! Dieses Plugin ist mehr oder weniger ein Draft.
+- Bisher erst auf einer individuellen Seite minimal implementiert.
+- Joomla 4 noch nicht getestet, auch, wenn es installierbar ist.
+
+## Caution! This plugin is more or less a draft.
+- Only minimally implemented on 1 individual site so far.
+- Joomla 4 not yet tested, even if it is installable.
 
 ----------------------
 

@@ -4,9 +4,7 @@ namespace Joomla\Plugin\System\ConvertFormsGhsvs\Helper;
 
 \defined('JPATH_BASE') or die;
 
-use Joomla\CMS\Filter\InputFilter;
 use Joomla\Registry\Registry;
-use Joomla\CMS\Filesystem\Folder;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 
@@ -25,25 +23,56 @@ class ConvertFormsGhsvsHelper
 		self::$isJ3 = version_compare(JVERSION, '4', 'lt');
 	}
 
-	public static function loadCSS($app, $db)
+	/*
+	Load CSS. See https://github.com/GHSVS-de/plg_system_convertformsghsvs/discussions/1.
+	*/
+	public static function loadCss($data)
 	{
-		$jinput = $app->input;
 		$wa = self::getWa();
 		$weight = 200;
 		$version = self::getMediaVersion();
 
 		if ($wa)
 		{
-			$waName = 'plg_system_convertformsghsvs.override.template';
+			$waName = self::$basepath . '.override.template';
 			$wa->getAsset('style', $waName)->setOption('weight', ++$weight);
 			$wa->useStyle($waName);
 		}
 		else
 		{
-			HTMLHelper::_('stylesheet', 'plg_system_convertformsghsvs.css',
+			HTMLHelper::_('stylesheet', self::$basepath . '.css',
 				['relative' => true, 'version' => $version]);
 		}
 
+		if (!empty($data['params']['classsuffix'])
+			&& ($classsuffix = trim($data['params']['classsuffix']))
+			&& strpos($classsuffix, '_css') !== false)
+		{
+			foreach (array_map('trim', explode(' ', $classsuffix)) as $suffix)
+			{
+				if (substr($suffix, -4) === '_css')
+				{
+					$file = str_replace('_', '.', $suffix);
+
+					if ($wa)
+					{
+						$waName = self::$basepath . '.' . $suffix;
+						$wa->registerStyle($waName, $file,
+						['version' => $version, 'weight' => ++$weight],
+						)->useStyle($waName);
+					}
+					else
+					{
+						HTMLHelper::_('stylesheet', $file,
+							['relative' => true, 'version' => $version]);
+					}
+				}
+			}
+		}
+	}
+
+	public static function loadCSSAAALT($app, $db)
+	{
 		if ($jinput->get('option', '') === 'com_convertforms' && $jinput->get('view', '') === 'form')
 		{
 			if (($form_id = (int) $app->getMenu()->getActive()->getParams()->get('form_id', 0)))
@@ -60,28 +89,7 @@ class ConvertFormsGhsvsHelper
 					$classsuffix = $params->get('classsuffix');
 
 					if (strpos($classsuffix, '_css') !== false) {
-						foreach (array_map('trim', explode(' ', $classsuffix)) as $file)
-						{
-							if (substr($file, -4) === '_css')
-							{
-								$file = str_replace('_', '.', $file);
 
-								if ($wa)
-								{
-									$waName = 'plg_system_convertformsghsvs.' . str_replace('/', '.', $file);
-									$wa->registerStyle(
-									$waName,
-									$file,
-									['version' => $version, 'weight' => ++$weight],
-									)->useStyle($waName);
-								}
-								else
-								{
-									HTMLHelper::_('stylesheet', $file,
-										['relative' => true, 'version' => self::getMediaVersion(), 'pathOnly' => false]);
-								}
-							}
-						}
 					}
 				}
 			}
@@ -145,8 +153,7 @@ class ConvertFormsGhsvsHelper
 		if (self::$isJ3 === false && empty(self::$wa))
 		{
 			self::$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
-			// self::$wa->getRegistry()->addExtensionRegistryFile('plg_system_convertformsghsvs');
-			self::$wa->getRegistry()->addRegistryFile('plugins/plg_system_convertformsghsvs/joomla.asset.json');
+			self::$wa->getRegistry()->addRegistryFile('plugins/' . self::$basepath . '/joomla.asset.json');
 		}
 
 		return self::$wa;

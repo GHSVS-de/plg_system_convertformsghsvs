@@ -20,12 +20,7 @@ Siehe auch plugins/convertformstools.
 Um die events zu finden, suche nach "onConvertForms" in den Dateien der gesamten seite.
 */
 
-use Joomla\CMS\Access\Access;
-use Joomla\CMS\Factory;
-use Joomla\CMS\Language\Text;
 use Joomla\CMS\Plugin\CMSPlugin;
-use Joomla\CMS\Table\Table;
-use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Form\Form;
 use Joomla\Plugin\System\ConvertFormsGhsvs\Helper\ConvertFormsGhsvsHelper;
@@ -295,6 +290,12 @@ Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgeh
 */
 	public function onConvertFormsSubmissionAfterSave($submission)
 	{
+		// Not implemented yet.
+		if ($this->params->get('sendCopy', 0) !== 1)
+		{
+			return;
+		}
+
 		# Sende eine Bestätigungs-Email an den Besucher.
 		# Draft!!!!!!!!!!
 		# Die Email geht aber schon mal raus.
@@ -322,7 +323,21 @@ Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgeh
 
 		}
 
-		$body = "Die an mich übermittelten Daten" . "\n\n" . '{all_fields}';
+		$body = '
+Soeben wurden mit der Email-Angabe {field.email} Daten über das Online-Formular {url.path} übermittelt. Dies ist eine Kopie der gesendeten Email.
+
+Guten Tag!
+
+
+
+Übertragungs-ID: {submission.id}.
+Übertragungs-Datum: {submission.date}.
+
+Übermittelte Daten:
+
+{all_fields}';
+
+		$body = "\n\nDie an mich übermittelten Daten" . "\n\n" . '{all_fields}';
 
 		$email = [
 			'recipient' => $data['email'],
@@ -368,7 +383,6 @@ Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgeh
 
 	public function onBeforeCompileHead()
 	{
-		ConvertFormsGhsvsHelper::loadCss($this->app, $this->db);
 	}
 
 	/** NUTZLOS IM FE!!!!!!!!
@@ -381,44 +395,19 @@ Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgeh
 	*/
 	public function onConvertFormsFormPrepareForm($form, $data)
 	{
-		return true;
 	}
 
 	/*
-	!!!!Das findet erst nach dem Rendern Joomlas statt. HTMLHelper nutzlos, also.
+	Load CSS.
 	*/
 	public function onConvertFormsFormBeforeRender($data)
 	{
-
 		if ($this->app->isClient('administrator') || empty($data)) {
 			return;
 		}
 
-		// CSS files to load? https://github.com/GHSVS-de/plg_system_convertformsghsvs/discussions/1
-/* 		if (!empty($data['params']['classsuffix'])
-			&& ($classsuffix = trim($data['params']['classsuffix']))
-			&& strpos($classsuffix, '_css') !== false)
-		{
-			foreach (array_map('trim', explode(' ', $classsuffix)) as $file) {
-				if (substr($file, -4) === '_css') {
-					$file = str_replace('_', '.', $file);
-					echo $file;
-					$bullshit = HTMLHelper::_('stylesheet', $file,
-						['relative' => true, 'version' => 'auto', 'pathOnly' => false]);
-					echo $bullshit;
-				}
-			}
-		} */
-//
-		//$form->loadFile(__DIR__ . '/form/form.xml', false);
+		ConvertFormsGhsvsHelper::loadCss($data);
+
 		return true;
 	}
-
-	public function onContentBeforeDisplay($context, &$row, &$params, $page = 0)
-	{
-		#echo ' onContentPrepare sssssssss <pre>' . print_r($context, true) . '</pre>';exit;
-			//$this->renderAllVideos($row, $params, $page = 0);
-	}
-
-
 }
