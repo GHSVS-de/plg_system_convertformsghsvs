@@ -42,7 +42,7 @@
 			</fieldset>
 
 			<fieldset name="settings" label="Settings">
-				<field type="hidden" default="0" name="sendCopy"/>
+				<field type="hidden" default="0" name="sendCopy" filter="integer"/>
 			</fieldset>
 		</fields>
 	</config>
