@@ -153,7 +153,7 @@ class ConvertFormsGhsvsHelper
 		if (self::$isJ3 === false && empty(self::$wa))
 		{
 			self::$wa = Factory::getApplication()->getDocument()->getWebAssetManager();
-			self::$wa->getRegistry()->addRegistryFile('plugins/' . self::$basepath . '/joomla.asset.json');
+			self::$wa->getRegistry()->addRegistryFile('plugins/system/convertformsghsvs/joomla.asset.json');
 		}
 
 		return self::$wa;
