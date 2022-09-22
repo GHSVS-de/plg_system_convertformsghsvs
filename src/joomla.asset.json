@@ -11,6 +11,14 @@
 			"type": "style",
 			"uri": "{{name}}.css",
 			"weight": 200
+		},
+		{
+			"name": "{{name}}.com_convertforms.overrule",
+			"description": "Um die Ladereihenfolge umzudrehen, falls in ConvertForms-Optionen loadCSS aktiv. ",
+			"version": "{{version}}",
+			"type": "style",
+			"uri": "com_convertforms/convertforms.css",
+			"weight": 100
 		}
   ]
 }

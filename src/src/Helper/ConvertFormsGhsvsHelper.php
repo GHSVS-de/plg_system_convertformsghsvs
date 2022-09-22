@@ -7,6 +7,7 @@ namespace Joomla\Plugin\System\ConvertFormsGhsvs\Helper;
 use Joomla\Registry\Registry;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Component\ComponentHelper;
 
 class ConvertFormsGhsvsHelper
 {
@@ -31,6 +32,24 @@ class ConvertFormsGhsvsHelper
 		$wa = self::getWa();
 		$weight = 200;
 		$version = self::getMediaVersion();
+
+		// To reverse the loading order, if loadCSS is active in ConvertForms options.
+		$compoParams = ComponentHelper::getParams('com_convertforms');
+
+		if ($compoParams->get('loadCSS', true))
+		{
+			if ($wa)
+			{
+				$waName = self::$basepath . '.com_convertforms.overrule';
+				$wa->getAsset('style', $waName)->setOption('weight', ++$weight);
+				$wa->useStyle($waName);
+			}
+			else
+			{
+				HTMLHelper::_('stylesheet', 'com_convertforms/convertforms.css',
+					['relative' => true, 'version' => $version]);
+			}
+		}
 
 		if ($wa)
 		{
