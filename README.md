@@ -5,12 +5,20 @@ Joomla-System-Plugin. Führt zusätzliche Aktionen durch, wenn die Erweiterung C
 Joomla system plugin. Performs additional actions when extension ConvertForms is used.
 
 ## Vorsicht! Dieses Plugin ist mehr oder weniger ein Draft.
-- Bisher erst auf einer individuellen Seite minimal implementiert.
-- Joomla 4 noch nicht getestet, auch, wenn es installierbar ist.
+- Bisher erst auf 2 individuellen Seiten minimal implementiert.
+- Nur mit ConvertForms FREE getestet und verwendet, das nur 1 einzelne Emailbenachrichtigung senden kann.
+- Das Plugin geht von folgendem, einfachen Standard-Szenario aus:
+  - Ein Seitenbesucher füllt eine Art Kontaktformular aus.
+	- Die Daten des Formulars werden an den Seitenbetreiber (bzw. eingetragenen Email-Empfänger) gesendet.
+	- Weitere abweichende Szenarien, die mit ConvertForms möglich sind, wurden nicht getestet.
 
 ## Caution! This plugin is more or less a draft.
-- Only minimally implemented on 1 individual site so far.
-- Joomla 4 not yet tested, even if it is installable.
+- Only minimally implemented on 2 individual pages so far.
+- Only tested and used with ConvertForms FREE which can only send 1 single email notification.
+- The plugin assumes the following simple standard scenario:
+  - A site visitor fills out a kind of contact form.
+	- The data of the form is sent to the page operator (or registered email recipient).
+	- Other deviating scenarios that are possible with ConvertForms have not been tested.
 
 ----------------------
 
