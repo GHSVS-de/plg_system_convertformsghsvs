@@ -42,12 +42,28 @@
 			</fieldset>
 
 			<fieldset name="settings" label="Settings">
+
 				<field type="list" default="0" name="sendCopy" filter="integer"
 					label="PLG_SYSTEM_CONVERTFORMSGHSVS_SENDCOPY"
 					description="PLG_SYSTEM_CONVERTFORMSGHSVS_SENDCOPY_DESC">
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
+
+				<field type="list" default="0" name="attachUploaded" filter="integer"
+					label="PLG_SYSTEM_CONVERTFORMSGHSVS_ATTACHUPLOADED"
+					description="PLG_SYSTEM_CONVERTFORMSGHSVS_ATTACHUPLOADED_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field type="list" default="0" name="debug" filter="integer"
+					label="PLG_SYSTEM_CONVERTFORMSGHSVS_DEBUG"
+					description="PLG_SYSTEM_CONVERTFORMSGHSVS_DEBUG_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
 			</fieldset>
 		</fields>
 	</config>

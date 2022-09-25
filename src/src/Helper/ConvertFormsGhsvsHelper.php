@@ -8,6 +8,8 @@ use Joomla\Registry\Registry;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Filesystem\Folder;
 
 class ConvertFormsGhsvsHelper
 {
@@ -90,31 +92,6 @@ class ConvertFormsGhsvsHelper
 		}
 	}
 
-	public static function loadCSSAAALT($app, $db)
-	{
-		if ($jinput->get('option', '') === 'com_convertforms' && $jinput->get('view', '') === 'form')
-		{
-			if (($form_id = (int) $app->getMenu()->getActive()->getParams()->get('form_id', 0)))
-			{
-				$query = $db->getQuery(true)
-					->select($db->qn('params'))
-					->from($db->qn('#__convertforms'))
-					->where($db->qn('id') . ' = ' . $form_id);
-				$db->setQuery($query);
-				$params = $db->loadResult();
-
-				if ($params && strpos($params, '_css') !== false) {
-					$params = new Registry($params);
-					$classsuffix = $params->get('classsuffix');
-
-					if (strpos($classsuffix, '_css') !== false) {
-
-					}
-				}
-			}
-		}
-	}
-
 	public static function getMediaVersion()
 	{
 		if (!isset(self::$loaded[__METHOD__]))
@@ -176,5 +153,86 @@ class ConvertFormsGhsvsHelper
 		}
 
 		return self::$wa;
+	}
+
+	public static function fixSmartTags(&$submission, $string = '')
+	{
+		/*
+		Bug in ConvertForms, das {url.path} gelegentlich falsch auflöst unter Joomla 4 als Modul.
+		Zu Unsinn wie https://example.org/component/convertforms
+		*/
+		if (!empty($submission->prepared_fields['url_path']->value_raw))
+		{
+			$uri = base64_decode($submission->prepared_fields['url_path']->value_raw);
+
+			// Weil ConvertForms auch das in Email ausgibt, obwohl hidden. Gnaaah!
+			$submission->prepared_fields['url_path']->value_html = $uri;
+
+			foreach ($submission->form->emails as $key => $email)
+			{
+				if (isset($email['body']))
+				{
+					$submission->form->emails[$key]['body'] = str_replace('{url.path}', $uri, $submission->form->emails[$key]['body']);
+				}
+			}
+
+			if (!empty($string))
+			{
+				$string = str_replace('{url.path}', $uri, $string);
+				return $string;
+			}
+		}
+		//return $submission;
+	}
+
+	public static function debug($submission, $app)
+	{
+		$debugPath = rtrim($app->get('tmp_path', JPATH_SITE . '/tmp'), '/');
+
+		if (is_writable($debugPath))
+		{
+			$debugPath = $debugPath . '/plg_system_convertformsghsvs';
+
+			if (!is_dir($debugPath ))
+			{
+				Folder::create($debugPath);
+			}
+
+			$debugFile = $debugPath . '/onConvertFormsSubmissionAfterSavePrepare.txt';
+
+			file_put_contents($debugFile, 'Start onConvertFormsSubmissionAfterSavePrepare' . "\n\n");
+
+			foreach ($submission as $key => $value)
+			{
+				if ($key !== 'prepared_fields')
+				{
+					file_put_contents($debugFile,
+						"\n----$key\n" . print_r($key, true) . "\n", FILE_APPEND);
+					file_put_contents($debugFile,
+						print_r($value, true) . "\n----\n", FILE_APPEND);
+				}
+				else
+				{
+					foreach ($submission->prepared_fields as $key => $value)
+					{
+						$debugFile2 = $debugPath . "/prepared_fields_$key.txt";
+						file_put_contents($debugFile2,
+							"\n----prepared_fields_$key STARTS: \n" . "----\n");
+
+						foreach ($submission->prepared_fields[$key] as $key2 => $value2)
+						{
+							// Das ist *RECURSION*-Schrott.
+							if ($key2 === 'class')
+							{
+								continue;
+							}
+
+							file_put_contents($debugFile2,
+								"\n----$key::$key2\n" . print_r($value2, true) . "\n----\n", FILE_APPEND);
+						}
+					}
+				}
+			}
+		}
 	}
 }
