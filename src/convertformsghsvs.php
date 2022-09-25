@@ -219,27 +219,27 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 			$from_email = $this->emails['emails0']['recipient'];
 			$reply_to = $this->emails['emails0']['recipient'];
 			$attachments = $this->attachUploaded === true ? implode(',', $this->attachments) : '';
-		}
 
-		$email = [
-			'recipient' => $recipient,
-			'subject' => $subject,
-			'from_name' => $from_name,
-			'from_email' => $from_email,
-			'reply_to' => $reply_to,
-			'reply_to_name' => $reply_to_name,
-			'body' => $body,
-			'attachments' => '',
-		];
+			$email = [
+				'recipient' => $recipient,
+				'subject' => $subject,
+				'from_name' => $from_name,
+				'from_email' => $from_email,
+				'reply_to' => $reply_to,
+				'reply_to_name' => $reply_to_name,
+				'body' => $body,
+				'attachments' => '',
+			];
 
-		$email['body'] = HTMLHelper::_('content.prepare', $email['body']);
-		$email['body'] = ConvertFormsGhsvsHelper::fixSmartTags($submission, $email['body']);
-		$email = ConvertForms\SmartTags::replace($email, $submission);
-		$mailer = new NRFramework\Email($email);
+			$email['body'] = HTMLHelper::_('content.prepare', $email['body']);
+			$email['body'] = ConvertFormsGhsvsHelper::fixSmartTags($submission, $email['body']);
+			$email = ConvertForms\SmartTags::replace($email, $submission);
+			$mailer = new NRFramework\Email($email);
 
-		if (!$mailer->send())
-		{
-			throw new \Exception($mailer->error);
+			if (!$mailer->send())
+			{
+				throw new \Exception($mailer->error);
+			}
 		}
 	}
 
