@@ -209,7 +209,7 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 		){
 			// By visitor entered data. Array.
 			$data = $submission->params;
-			$body = "<b>Diese Nachricht bestätigt, dass Ihr Formular auf Webseite {url.path} übermittelt wurde. Es folgt eine Kopie der an " . $this->emails['emails0']['recipient'] . " gesendeten Email:<b><br /><br />";
+			$body = "<strong>Diese Nachricht bestätigt, dass Ihr Formular auf Webseite {url.path} übermittelt wurde. Es folgt eine Kopie der an " . $this->emails['emails0']['recipient'] . " gesendeten Email:</strong><br /><br />";
 			$body .= $this->emails['emails0']['body'];
 			$subject = 'Sendebestätigung: ' . $this->emails['emails0']['subject'];
 			$recipient = $submission->prepared_fields['email']->value_raw;
