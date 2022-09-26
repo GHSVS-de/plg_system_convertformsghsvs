@@ -9,7 +9,6 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Uri\Uri;
-use Joomla\CMS\Filesystem\Folder;
 
 class ConvertFormsGhsvsHelper
 {
@@ -185,54 +184,55 @@ class ConvertFormsGhsvsHelper
 		//return $submission;
 	}
 
-	public static function debug($submission, $app)
+	public static function replaceSpamWords(&$submission, array $spamWords, string $replaceWith = '[***]')
 	{
-		$debugPath = rtrim($app->get('tmp_path', JPATH_SITE . '/tmp'), '/');
-
-		if (is_writable($debugPath))
+		if (empty($spamWords) || empty($submission->form->fields))
 		{
-			$debugPath = $debugPath . '/plg_system_convertformsghsvs';
+			return;
+		}
 
-			if (!is_dir($debugPath ))
+		foreach ($submission->form->fields as $field)
+		{
+			if ($field['type'] === 'textarea')
 			{
-				Folder::create($debugPath);
-			}
+				$name = $field['name'];
 
-			$debugFile = $debugPath . '/onConvertFormsSubmissionAfterSavePrepare.txt';
+				if (
+					empty($submission->prepared_fields[$name]->readonly)
+					&& !empty($submission->prepared_fields[$name]->value_raw)
+				) {
+					$toDo = ['value_raw', 'value', 'value_html'];
 
-			file_put_contents($debugFile, 'Start onConvertFormsSubmissionAfterSavePrepare' . "\n\n");
-
-			foreach ($submission as $key => $value)
-			{
-				if ($key !== 'prepared_fields')
-				{
-					file_put_contents($debugFile,
-						"\n----$key\n" . print_r($key, true) . "\n", FILE_APPEND);
-					file_put_contents($debugFile,
-						print_r($value, true) . "\n----\n", FILE_APPEND);
-				}
-				else
-				{
-					foreach ($submission->prepared_fields as $key => $value)
+					foreach ($toDo as $key)
 					{
-						$debugFile2 = $debugPath . "/prepared_fields_$key.txt";
-						file_put_contents($debugFile2,
-							"\n----prepared_fields_$key STARTS: \n" . "----\n");
-
-						foreach ($submission->prepared_fields[$key] as $key2 => $value2)
-						{
-							// Das ist *RECURSION*-Schrott.
-							if ($key2 === 'class')
-							{
-								continue;
-							}
-
-							file_put_contents($debugFile2,
-								"\n----$key::$key2\n" . print_r($value2, true) . "\n----\n", FILE_APPEND);
-						}
+						$submission->prepared_fields[$name]->$key = str_ireplace(
+							$spamWords, $replaceWith, $submission->prepared_fields[$name]->$key);
 					}
 				}
 			}
 		}
+	}
+
+	public static function getSpamWords(string $spamWords) : array
+	{
+		$spam_words = str_replace(["\r", "\n"], '', $spamWords);
+
+		if (empty($spam_words))
+		{
+			return [];
+		}
+
+		$spam_words = explode(',', $spam_words);
+
+		// Allow whitespace parts in string but remove senseless empty strings.
+		foreach ($spam_words as $key => $word)
+		{
+			if (!trim($word))
+			{
+				unset($spam_words[$key]);
+			}
+		}
+
+		return $spam_words;
 	}
 }

@@ -33,6 +33,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Form\Form;
 use Joomla\Plugin\System\ConvertFormsGhsvs\Helper\ConvertFormsGhsvsHelper;
 use Joomla\CMS\Uri\Uri;
+use Joomla\CMS\Filesystem\Folder;
 
 
 class PlgSystemConvertFormsGhsvs extends CMSPlugin
@@ -75,6 +76,10 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 
 	protected $debug = false;
 
+	protected $spamWords = [];
+
+	protected $spamWordsReplacer = '[***]';
+
 	/*
 	$subission object:
 
@@ -109,6 +114,8 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 			&& (int) $this->params->get('attachUploaded', 0) === 1;
 		$this->sendCopy = $this->sendnotifications === true
 			&& (int) $this->params->get('sendCopy', 0) === 1;
+		$this->spamWords = ConvertFormsGhsvsHelper::getSpamWords($this->params->get('spamWords', ''));
+		$this->spamWordsReplacer = $this->params->get('spamWordsReplacer', '[***]');
 
 		/*
 		Get relevant Upload-Fields. Also vom Besucher im Formular hochgeladene Dateien,
@@ -172,6 +179,9 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 			}
 		}
 
+		ConvertFormsGhsvsHelper::replaceSpamWords($submission, $this->spamWords,
+			$this->spamWordsReplacer);
+
 		// Bspw. {page.url} wird ggf. falsch aufgelöst.
 		ConvertFormsGhsvsHelper::fixSmartTags($submission);
 
@@ -184,7 +194,7 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 
 		if ($this->debug = true)
 		{
-			ConvertFormsGhsvsHelper::debug($submission, $this->app);
+			$this->debugOutput($submission);
 		}
 	}
 
@@ -210,6 +220,7 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 			// By visitor entered data. Array.
 			$data = $submission->params;
 			$body = "<strong>Diese Nachricht bestätigt, dass Ihr Formular auf Webseite {url.path} übermittelt wurde. Es folgt eine Kopie der an " . $this->emails['emails0']['recipient'] . " gesendeten Email:</strong><br /><br />";
+
 			$body .= $this->emails['emails0']['body'];
 			$subject = 'Sendebestätigung: ' . $this->emails['emails0']['subject'];
 			$recipient = $submission->prepared_fields['email']->value_raw;
@@ -228,7 +239,7 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 				'reply_to' => $reply_to,
 				'reply_to_name' => $reply_to_name,
 				'body' => $body,
-				'attachments' => '',
+				'attachments' => $attachments,
 			];
 
 			$email['body'] = HTMLHelper::_('content.prepare', $email['body']);
@@ -297,5 +308,74 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 
 		ConvertFormsGhsvsHelper::loadCss($data);
 		return true;
+	}
+
+	/*
+	Ist hier besser aufgehoen als im Helper. Wegen protected Variablen.
+	*/
+	protected function debugOutput($submission)
+	{
+		$debugPath = rtrim($this->app->get('cache_path', JPATH_CACHE), '/');
+
+		if (is_writable($debugPath))
+		{
+			$debugPath .= '/plg_system_convertformsghsvs';
+
+			if (!is_dir($debugPath ))
+			{
+				Folder::create($debugPath);
+			}
+
+			$access = "<IfModule !mod_authz_core.c>\nOrder deny,allow\nDeny from all\n"
+			. "</IfModule>\n<IfModule mod_authz_core.c>\n<RequireAll>\n"
+			. "Require all denied\n</RequireAll>\n</IfModule>";
+			file_put_contents($debugPath . '/.htaccess', $access);
+
+			// Add file prefix.
+			$debugPath .= '/form_id-' . $submission->form_id .'-';
+
+			$debugFile = $debugPath . 'onConvertFormsSubmissionAfterSavePrepare.txt';
+			file_put_contents($debugFile, 'Start onConvertFormsSubmissionAfterSavePrepare' . "\n\n");
+
+			foreach ($submission as $key => $value)
+			{
+				if ($key !== 'prepared_fields')
+				{
+					file_put_contents($debugFile,
+						"\n----$key\n" . print_r($key, true) . "\n", FILE_APPEND);
+					file_put_contents($debugFile,
+						print_r($value, true) . "\n----\n", FILE_APPEND);
+				}
+				else
+				{
+					foreach ($submission->prepared_fields as $key => $value)
+					{
+						$debugFile2 = $debugPath . "prepared_fields_$key.txt";
+						file_put_contents($debugFile2,
+							"\n----prepared_fields_$key STARTS: \n" . "----\n");
+
+						foreach ($submission->prepared_fields[$key] as $key2 => $value2)
+						{
+							// Das ist *RECURSION*-Schrott.
+							if ($key2 === 'class')
+							{
+								continue;
+							}
+
+							file_put_contents($debugFile2,
+								"\n----$key::$key2\n" . print_r($value2, true) . "\n----\n", FILE_APPEND);
+						}
+					}
+				}
+			}
+
+			$toDo = ['spamWords', 'attachments', 'emails'];
+
+			foreach ($toDo as $key)
+			{
+				$debugFile = $debugPath . $key . '.txt';
+				file_put_contents($debugFile, $key . ':' . "\n" . print_r($this->$key, true));
+			}
+		}
 	}
 }

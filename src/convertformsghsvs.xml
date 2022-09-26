@@ -41,6 +41,7 @@
 				<field type="hidden" default="1" name="{{filename}}plugin"/>
 			</fieldset>
 
+
 			<fieldset name="settings" label="Settings">
 
 				<field type="list" default="0" name="sendCopy" filter="integer"
@@ -56,6 +57,14 @@
 					<option value="0">JNO</option>
 					<option value="1">JYES</option>
 				</field>
+
+				<field type="textarea" default="" name="spamWords" filter="string" rows="15"
+					label="PLG_SYSTEM_CONVERTFORMSGHSVS_SPAMWORDS"
+					description="PLG_SYSTEM_CONVERTFORMSGHSVS_SPAMWORDS_DESC"/>
+
+				<field type="text" default="[***]" name="spamWordsReplacer" filter="string"
+					label="PLG_SYSTEM_CONVERTFORMSGHSVS_SPAMWORDSREPLACER"
+					description="PLG_SYSTEM_CONVERTFORMSGHSVS_SPAMWORDSREPLACER_DESC"/>
 
 				<field type="list" default="0" name="debug" filter="integer"
 					label="PLG_SYSTEM_CONVERTFORMSGHSVS_DEBUG"
