@@ -242,7 +242,10 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 				'attachments' => $attachments,
 			];
 
+			// Protect against email cloaking.
+			$email['body'] = str_replace('@', '[**at**]', $email['body']);
 			$email['body'] = HTMLHelper::_('content.prepare', $email['body']);
+			$email['body'] = str_replace('[**at**]', '@', $email['body']);
 			$email['body'] = ConvertFormsGhsvsHelper::fixSmartTags($submission, $email['body']);
 			$email = ConvertForms\SmartTags::replace($email, $submission);
 			$mailer = new NRFramework\Email($email);
