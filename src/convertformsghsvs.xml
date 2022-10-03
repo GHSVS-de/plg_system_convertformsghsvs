@@ -58,6 +58,19 @@
 					<option value="1">JYES</option>
 				</field>
 
+				<field type="list" default="1" name="protectUploaded" filter="integer"
+					label="PLG_SYSTEM_CONVERTFORMSGHSVS_PROTECTUPLOADED"
+					description="PLG_SYSTEM_CONVERTFORMSGHSVS_PROTECTUPLOADED_DESC">
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field type="number" default="30" name="cleanoutIntervall" filter="integer"
+					min="-1"
+					label="PLG_SYSTEM_CONVERTFORMSGHSVS_CLEANOUTINTERVALL"
+					description="PLG_SYSTEM_CONVERTFORMSGHSVS_CLEANOUTINTERVALL_DESC"
+					showon="protectUploaded:1" />
+
 				<field type="textarea" default="" name="spamWords" filter="string" rows="15"
 					label="PLG_SYSTEM_CONVERTFORMSGHSVS_SPAMWORDS"
 					description="PLG_SYSTEM_CONVERTFORMSGHSVS_SPAMWORDS_DESC"/>

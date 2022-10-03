@@ -13,15 +13,11 @@ if (version_compare(JVERSION, '4', 'lt'))
 }
 
 /*
-Siehe auch plugins/convertforms.
-
-Siehe auch plugins/convertformstools.
-
 Um die events zu finden, suche nach "onConvertForms" in den Dateien der gesamten seite.
 
-$this->app->triggerEvent('onConvertFormsFileUpload', [&$destination_file, $tmpData]);
+Siehe https://www.tassos.gr/joomla-extensions/convert-forms/docs/developers-php-events
 
- JFactory::getApplication()->triggerEvent('onConvertFormsSubmissionBeforeSave', [&$data]);
+JFactory::getApplication()->triggerEvent('onConvertFormsSubmissionBeforeSave', [&$data]);
 
 Dieses Event dient der Bearbeitung der Submission-Datas VOR onConvertFormsSubmissionAfterSave
 JFactory::getApplication()->triggerEvent('onConvertFormsSubmissionAfterSavePrepare', [&$submission]);
@@ -34,7 +30,7 @@ use Joomla\CMS\Form\Form;
 use Joomla\Plugin\System\ConvertFormsGhsvs\Helper\ConvertFormsGhsvsHelper;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Filesystem\Folder;
-
+use Joomla\CMS\Language\Text;
 
 class PlgSystemConvertFormsGhsvs extends CMSPlugin
 {
@@ -80,30 +76,93 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 
 	protected $spamWordsReplacer = '[***]';
 
+	// Want a protected upload folder.
+	protected $uploadPathRel = 'media/com_convertforms/uploads/ghsvs';
+
+	// Man kann z.B. die Submission-Id ändern. Für Uploads wenig hilfreich, außer dass der tmp/-Pfad bekannt gemacht wird.
+	public function onConvertFormsSubmissionBeforeSave(&$data)
+	{
+	}
+
 	/*
-	$subission object:
+	Fires by the File Upload field after the uploaded file has been moved into its
+	destination folder. With this event, you can rename the file, move it to
+	another folder, resize an image or even upload it to a cloud storage service.
 
-	Siehe https://github.com/GHSVS-de/schraefl.j4.ghsvs.de/issues/3
-
-	https://datenschutz-generator.de/kuendigung-button/
-
-	Schaltfläche „Verträge hier kündigen“ führt auf Formular.
-
-	“Ohne die Angaben der E-Mail-Adresse und der Vertragsnummer, können wir Ihre Kündigung keinem Vertrag rechtswirksam zuordnen“
-
-	“zum frühest möglichen Zeitpunkt”
-
-	Guten Tag!
-	Soeben wurde mir ein Kündigungswunsch über die Internetseite ghsvs.de zugesendet.
-
-	Bitte ignorieren und löschen Sie diese automatisierte Rückantwort hier, falls nicht Sie den Kündigungswunsch gesendet haben.
-
-	Andernfalls heben Sie diese Email bitte als Sendebeleg auf. Ich werde mich umgehend an Sie wenden, nachdem ich den Vorgang geprüft habe.
-
-	“Kündigungsbestätigung und Kopie der Kündigungserklärung
-
+	&$filepath: (string) The absolute file path where the file is stored. Passed by reference.
+	$data: (array) The form submitted data.
 
 	*/
+	// Man erhält den ABSOLUTEN Pfad unter dem die Datei bereits gespeichert ist!
+	public function onConvertFormsFileUpload(&$filepath, $data)
+	{
+		if ($this->params->get('protectUploaded', 1) === 1)
+		{
+			$uploadPath = JPATH_SITE . '/' . $this->uploadPathRel;
+			$htpasswd = $uploadPath . '/.htpasswd';
+			$newFilepath = $uploadPath . '/form-' . $data['form_id'] . '_' . basename($filepath);
+
+			if (!is_dir($uploadPath)) {
+				Folder::create($uploadPath);
+			}
+
+			if (!is_file($htpasswd)) {
+				file_put_contents($htpasswd, '');
+			}
+
+			if (!is_file($uploadPath . '/.htaccess')) {
+				$htaccess = <<<HTACCESS
+AuthUserFile $htpasswd
+AuthGroupFile /dev/null
+AuthName 'please enter access data'
+AuthType Basic
+require valid-user
+HTACCESS;
+				file_put_contents($uploadPath . '/.htaccess', $htaccess);
+			}
+
+			$filepath = NRFramework\File::move($filepath, $newFilepath);
+			$cleanoutIntervall = ((int) $this->params->get('cleanoutIntervall', 30))
+				* 24 * 60 * 60;
+
+			// -1:never, 0:always, others:x days
+			if ($cleanoutIntervall > -1) {
+				$now = time();
+				$cleanoutLog = $uploadPath . '/cleanoutLog.txt';
+
+				if ($cleanoutIntervall === 0) {
+					$nextCleanoutTime = $now;
+				}
+				elseif (is_file($cleanoutLog)) {
+					$nextCleanoutTime = filemtime($cleanoutLog) + $cleanoutIntervall;
+				}
+				else {
+					$nextCleanoutTime = $now + $cleanoutIntervall;
+					file_put_contents($cleanoutLog, '');
+				}
+
+				if ($nextCleanoutTime <= $now)
+				{
+					file_put_contents($cleanoutLog, '');
+
+					foreach(Folder::files(
+						$uploadPath,
+						$filter = '.',
+						$recurse = true,
+						$full = true,
+						$exclude = ['.htaccess', '.htpasswd', 'cleanoutLog.txt']) as $File
+					) {
+						$fileAge = filemtime($File);
+
+						if (($fileAge + $cleanoutIntervall) < $now)
+						{
+							unlink($File);
+						}
+					}
+				}
+			}
+		}
+	}
 
 	// Dieses Event dient der Bearbeitung der Submission-Datas VOR onConvertFormsSubmissionAfterSave
 	public function onConvertFormsSubmissionAfterSavePrepare(&$submission)
@@ -124,7 +183,7 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 		*/
 		$fields = $submission->form->fields;
 
-		foreach ($fields as $field)
+		foreach ($fields as $fieldKey => $field)
 		{
 			if ($field['type'] === 'fileupload')
 			{
@@ -288,12 +347,30 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 	{
 	}
 
+	public function onConvertFormsFieldBeforeRender($field, $fieldForm)
+	{
 	/*
+		Eigentlich war die Idee, ähnlich ECC+ Zahlen gelegentlich als Worte auszugeben.
+		Zu diesem Zeitpunkt kann man die Werte in 'question' bedenkenlos überschreiben.
+		Das ist mir aber derzeit zu nervig wegen ini-Sprachdateien.
+		*/
+		if ($field->type === 'captcha' && $this->params->get('numbersAsWords', 0) === 1)
+		{
+			if ($field->question['comparator'] === '+' && random_int(1, 3) === 1)
+			{
+				$field->question['comparator'] = Text::_('PLG_SYSTEM_EASYCALCCHECKPLUS_PLUS');
+			}
+
+			if ($field->question['comparator'] === '-' && random_int(1, 3) === 1)
+			{
+				$field->question['comparator'] = Text::_('PLG_SYSTEM_EASYCALCCHECKPLUS_MINUS');
+			}
+		}
+
+		/*
 	Weil Convert form als Modul falsches {url.path} auflöst
 	Siehe https://github.com/GHSVS-de/plg_system_convertformsghsvs/discussions/5.
 	*/
-	public function onConvertFormsFieldBeforeRender($field, $fieldForm)
-	{
 		if ($field->name === 'url_path')
 		{
 			$field->value = base64_encode(Uri::getInstance()->toString());
