@@ -96,8 +96,7 @@ class PlgSystemConvertFormsGhsvs extends CMSPlugin
 	// Man erhält den ABSOLUTEN Pfad unter dem die Datei bereits gespeichert ist!
 	public function onConvertFormsFileUpload(&$filepath, $data)
 	{
-		if ($this->params->get('protectUploaded', 1) === 1)
-		{
+		if ($this->params->get('protectUploaded', 1) === 1) {
 			$uploadPath = JPATH_SITE . '/' . $this->uploadPathRel;
 			$htpasswd = $uploadPath . '/.htpasswd';
 			$newFilepath = $uploadPath . '/form-' . $data['form_id'] . '_' . basename($filepath);
@@ -141,8 +140,7 @@ HTACCESS;
 					file_put_contents($cleanoutLog, '');
 				}
 
-				if ($nextCleanoutTime <= $now)
-				{
+				if ($nextCleanoutTime <= $now) {
 					file_put_contents($cleanoutLog, '');
 
 					foreach(Folder::files(
@@ -154,8 +152,7 @@ HTACCESS;
 					) {
 						$fileAge = filemtime($File);
 
-						if (($fileAge + $cleanoutIntervall) < $now)
-						{
+						if (($fileAge + $cleanoutIntervall) < $now) {
 							unlink($File);
 						}
 					}
@@ -215,8 +212,10 @@ HTACCESS;
 			$this->attachments = array_unique($this->attachments);
 		}
 
+		if (!empty($submission->form->emails)) {
+
 		// Add comma separated attachments string to eg. emails[emails0][attachments] array.
-		if ($this->attachUploaded === true && !empty($submission->form->emails))
+			if ($this->attachUploaded === true)
 		{
 			foreach ($submission->form->emails as $key => $email)
 			{
@@ -235,6 +234,13 @@ HTACCESS;
 				{
 					$submission->form->emails[$key]['attachments'] = implode(',', $this->attachments);
 				}
+			}
+		}
+
+			if (!empty($submission->prepared_fields['email_bcc']->value_raw))
+			{
+				$submission->form->emails['emails0']['bcc'] = base64_decode(
+					$submission->prepared_fields['email_bcc']->value_raw);
 			}
 		}
 
@@ -353,6 +359,7 @@ HTACCESS;
 		Eigentlich war die Idee, ähnlich ECC+ Zahlen gelegentlich als Worte auszugeben.
 		Zu diesem Zeitpunkt kann man die Werte in 'question' bedenkenlos überschreiben.
 		Das ist mir aber derzeit zu nervig wegen ini-Sprachdateien.
+		Außerdem kann ECC+ mittlerweile ConvertForms.
 		*/
 		if ($field->type === 'captcha' && $this->params->get('numbersAsWords', 0) === 1)
 		{
@@ -367,6 +374,7 @@ HTACCESS;
 			}
 		}
 
+		if ($field->type === 'hidden') {
 		/*
 	Weil Convert form als Modul falsches {url.path} auflöst
 	Siehe https://github.com/GHSVS-de/plg_system_convertformsghsvs/discussions/5.
@@ -374,6 +382,15 @@ HTACCESS;
 		if ($field->name === 'url_path')
 		{
 			$field->value = base64_encode(Uri::getInstance()->toString());
+		}
+
+			/*
+			Eine BCC-Email über hidden field email_bcc
+			*/
+			if ($field->name === 'email_bcc' && ($email_bcc = trim($field->value)))
+			{
+				$field->value = base64_encode($field->value);
+			}
 		}
 	}
 
@@ -397,8 +414,7 @@ HTACCESS;
 	{
 		$debugPath = rtrim($this->app->get('cache_path', JPATH_CACHE), '/');
 
-		if (is_writable($debugPath))
-		{
+		if (is_writable($debugPath)) {
 			$debugPath .= '/plg_system_convertformsghsvs';
 
 			if (!is_dir($debugPath ))
